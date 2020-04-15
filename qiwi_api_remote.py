@@ -2,7 +2,6 @@
 # The program created by prod.z9L
 # YouTube channel: https://www.youtube.com/channel/UCy5bHWLxO3RGqP92AuaOj5A
 # My VK Group (for answers): https://vk.com/club185628534
-# My VK (also for answers): https://vk.com/id236413859
 # My Aura: @levlab79
 # End date of program development: 13.04.2020
 ##
@@ -257,7 +256,6 @@ print('=' * 90)
 print('The program created by prod.z9L')
 print('YouTube channel: https://www.youtube.com/channel/UCy5bHWLxO3RGqP92AuaOj5A')
 print('My VK Group (for answers): https://vk.com/club185628534')
-print('My VK (also for answers): https://vk.com/id236413859')
 print('My Aura: @levlab79')
 print('Thank you for your attention :)')
 print('=' * 90)
