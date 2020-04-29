@@ -262,32 +262,65 @@ print('=' * 90)
 print()
 print()
 
-check_token = input('Проверить сохранен ли токен? (y/n): ')
-if check_token == 'y':
-	# проверяем есть ли сохранение api токена
-	token_dict = CheckSaving('token.save', mode='pickle')
-	# если он есть
-	if token_dict:
-		api_token = token_dict["api_token"]
-		print('Токен успешно загружен.')
-		print()
-		show_token = input('Отобразить токен? (y/n): ')
-		if show_token == 'y':
-			print('Токен: {}'.format(api_token))
+while True:
+	# Проверяем, сохранены ли токены.
+	tokens_list = CheckSaving('token.save', mode='pickle')
+	if tokens_list:
+		print(f'Найдены сохраненные токены: {len(tokens_list)}')
 	else:
-		# если сохранений нет
-		print('Сохраненного токена не найдено!')
-		check_token = 'n'
-print()
+		print('Сохраненные токены не найдены.')
+	print('\nВыберите действие:')
+	print('1. Добавить новый токен (и сохраненить).')
+	print('2. Ввести новый токен (без сохранения).')
+	print('3. Завершить работу программы.')
+	if tokens_list:
+		try:
+			for index, l_token in enumerate(tokens_list):
+				print(f'{index + 4}. Выбрать токен - {l_token[1]} ({l_token[0]})')
+		except:
+			tokens_list = False
 
-if check_token != 'y':
-	api_token = input('Укажите токен: ')
-	# создаем запись с токеном
-	token_dict = {'api_token': api_token}
-	save_token = input('Сохранить новый токен? (y/n): ')
-	if save_token == 'y':
-		SaveInfo('token.save', token_dict, mode='pickle')
-		print('Токен успешно сохранен!')
+	if not tokens_list:
+		tokens_list = []
+
+	token_select = input('Ввод: ')
+	print()
+	if token_select == '1':
+
+		nt_name = input('Введите имя для токена: ')
+		nt_token = input('Введите token: ')
+		api_token = nt_token
+		tokens_list.append([nt_name, nt_token])
+		SaveInfo('token.save', tokens_list, mode='pickle')
+		print('Токен успешно сохранен!\n')
+		break
+
+	elif token_select == '2':
+
+		nt_token = input('Введите token: ')
+		api_token = nt_token
+		print('Токен принят.\n')
+		break
+
+	elif token_select == '3':
+
+		exit()
+
+	elif token_select.isdigit():
+
+		token_select = int(token_select)
+		many_tokens = len(tokens_list)
+		# Проверяем сколько токенов можно использовать.
+		if token_select <= many_tokens + 3:
+			api_token = tokens_list[token_select - 4][1]
+			token_name = tokens_list[token_select - 4][0]
+			print(f'Выбран токен: {api_token} ({token_name})\n')
+			break
+		else:
+			print('Ошибка при выборе токена.')
+
+	else:
+		print('Не удалось распознать действие.')
 	print()
 
 print('Получаем информацию об аккаунте...')
@@ -355,7 +388,7 @@ if acc_info:
 		print('\nВыберите следующее действие (укажите номер пункта):')
 		print('1. Посмотреть историю платежей (от 1 до 50).')
 		print('2. Перевести на другой QIWI кошелек.')
-		print('3. Выйти из программы.')
+		print('3. Завершить программу.')
 		action = input('Ввод: ')
 		# обрабатываем выбранный пункт
 		if action == '1':
@@ -416,7 +449,9 @@ if acc_info:
 					else:
 						symbol = ''
 					# выводим информацию об платеже
-					print(f'[{payment_status}] #{i}\t{payment_name}: {symbol}{payment_sum} {currency_name}\t[{payment_friend}] - {payment_date}')
+					full_sum = f'{symbol}{payment_sum}'
+					pay_stat_show = f'[{payment_status}]'
+					print(f'{pay_stat_show:<9} #{i:<4} {payment_name:<23} {full_sum:>8} {currency_name} [{payment_friend:^16}] - {payment_date}')
 					i += 1
 			else:
 				print('Ошибка, повторите запрос позже!')
@@ -436,8 +471,7 @@ if acc_info:
 				m_numbers = list()
 				n_numbers = 0
 			print('\nВыберите действие:')
-			print(
-				'1. Открыть список сохраненных контактов (доступно: {}).'.format(n_numbers))
+			print('1. Открыть список сохраненных контактов (доступно: {}).'.format(n_numbers))
 			print('2. Ввести номер вручную (без сохранения).')
 			print('3. Назад.')
 			select = input('Ввод: ')
@@ -503,7 +537,9 @@ if acc_info:
 								# определяем выбор
 								if man_select == '1':
 									to_qiwi = number["number"]
-									to_sum = input(f'\nУкажите сумму перевода RUB (от 1.0 до {balance_rub}): ')
+									to_sum = input(f'\nУкажите сумму перевода RUB (от 1.0 до {balance_rub / 1.03:.2f}, либо all): ')
+								if to_sum == 'all':
+									to_sum = round(balance_rub / 1.03, 2)
 									to_comment = input(
 										'Введите комментарий (либо оставьте пустым): ')
 									print()
@@ -530,7 +566,9 @@ if acc_info:
 
 			elif select == '2':
 				to_qiwi = input('\nВведите номер кошелька QIWI (без +): ')
-				to_sum = input(f'Укажите сумму перевода RUB (от 1.0 до {balance_rub}): ')
+				to_sum = input(f'Укажите сумму перевода RUB (от 1.0 до {balance_rub / 1.03:.2f}, либо all): ')
+				if to_sum == 'all':
+					to_sum = round(balance_rub / 1.03, 2)
 				to_comment = input(
 					'Введите комментарий (либо оставьте пустым): ')
 				print()
